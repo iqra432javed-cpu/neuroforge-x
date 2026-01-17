@@ -1,47 +1,37 @@
 // static/js/app.js
 
-// ========== UTILITIES ==========
-function getHistory() {
-  return JSON.parse(localStorage.getItem("neuroforge_history") || "[]");
-}
+// ================== STORAGE ==================
+const getHistory = () => JSON.parse(localStorage.getItem("neuroforge_history") || "[]");
+const saveHistory = (history) => localStorage.setItem("neuroforge_history", JSON.stringify(history));
+const getToday = () => new Date().toISOString().split("T")[0];
 
-function saveHistory(history) {
-  localStorage.setItem("neuroforge_history", JSON.stringify(history));
-}
-
-function getToday() {
-  const d = new Date();
-  return d.toISOString().split("T")[0];
-}
-
-// ========== MIND ENGINE ==========
-function calculateMindType(total) {
-  if (total >= 16) return "Focused Architect";
-  if (total >= 13) return "Strategic Explorer";
+// ================== ENGINE ==================
+const calculateMindType = (total) => {
+  if (total >= 17) return "Focused Architect";
+  if (total >= 13) return "Strategic Builder";
   if (total >= 10) return "Growing Explorer";
   return "Unstable Dreamer";
-}
+};
 
-// score‑based rank logic
-function calculateRank(total) {
+const calculateRank = (total) => {
   if (total >= 17) return "Architect";
   if (total >= 13) return "Builder";
   if (total >= 10) return "Explorer";
   return "Dreamer";
-}
+};
 
-function generateAnalysis(result) {
-  const analysis = [];
-  if (result.execution <= 2) analysis.push("⚠️ Execution is your biggest weakness");
-  if (result.consistency <= 2) analysis.push("⚠️ Consistency is unstable");
-  if (result.discipline <= 2) analysis.push("⚠️ Discipline needs improvement");
-  if (result.focus >= 4) analysis.push("✅ Strong focus ability");
-  if (result.discipline >= 4) analysis.push("✅ Strong discipline");
-  if (analysis.length === 0) analysis.push("💡 Balanced profile, time to optimize");
-  return analysis;
-}
+const generateAnalysis = (result) => {
+  const insights = [];
+  if (result.execution <= 2) insights.push("⚠️ Execution is your biggest weakness");
+  if (result.consistency <= 2) insights.push("⚠️ Consistency is unstable");
+  if (result.discipline <= 2) insights.push("⚠️ Discipline needs improvement");
+  if (result.focus >= 4) insights.push("✅ Strong focus ability");
+  if (result.discipline >= 4) insights.push("✅ Strong discipline");
+  if (!insights.length) insights.push("💡 Balanced profile. Time to optimize.");
+  return insights;
+};
 
-// ========== ONBOARDING SUBMIT ==========
+// ================== ONBOARDING ==================
 function handleOnboarding() {
   const form = document.querySelector(".onboarding-form");
   if (!form) return;
@@ -49,38 +39,30 @@ function handleOnboarding() {
   const button = form.querySelector("button");
   const selects = form.querySelectorAll("select");
 
-  // Enable button only when all selected
-  function check() {
-    let ok = true;
-    selects.forEach(s => { if (!s.value) ok = false; });
-    button.disabled = !ok;
-  }
+  const check = () => {
+    button.disabled = [...selects].some(s => !s.value);
+  };
 
   selects.forEach(s => s.addEventListener("change", check));
 
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const focus = parseInt(form.focus.value) || 0;
-    const discipline = parseInt(form.discipline.value) || 0;
-    const confidence = parseInt(form.confidence.value) || 0;
-    const consistency = parseInt(form.consistency.value) || 0;
-
-    const total = focus + discipline + confidence + consistency;
+    const focus = +form.focus.value;
+    const discipline = +form.discipline.value;
+    const execution = +form.confidence.value;
+    const consistency = +form.consistency.value;
+    const total = focus + discipline + execution + consistency;
 
     const result = {
       date: getToday(),
-      focus,
-      discipline,
-      execution: confidence,
-      consistency,
+      focus, discipline, execution, consistency,
       total,
-      mindType: calculateMindType(total)
+      mindType: calculateMindType(total),
+      rank: calculateRank(total)
     };
 
     const history = getHistory();
-
-    // prevent duplicate same‑day spam
     if (history.length && history[history.length - 1].date === result.date) {
       history[history.length - 1] = result;
     } else {
@@ -88,29 +70,29 @@ function handleOnboarding() {
     }
 
     saveHistory(history);
-
-    // Save last viewed index
     localStorage.setItem("neuroforge_last_index", history.length - 1);
 
-    // Go to result page
-    window.location.href = "result.html";
+    // Optional: show a quick success message before redirect
+    button.textContent = "✅ Analysis Saved!";
+    setTimeout(() => window.location.href = "result.html", 500);
   });
 }
 
-// ========== LOAD RESULT ==========
+// ================== RESULT PAGE ==================
 function loadResult() {
-  const resultTitle = document.querySelector("#result-title");
-  if (!resultTitle) return;
+  if (!document.querySelector("#result-title")) return;
 
   const history = getHistory();
-  if (history.length === 0) return;
+  if (!history.length) return;
 
-  const index = parseInt(localStorage.getItem("neuroforge_last_index") || (history.length - 1));
+  const index = +localStorage.getItem("neuroforge_last_index") || history.length - 1;
   const r = history[index];
 
-  // Fill data
   const bigResult = document.querySelector(".big-result");
   if (bigResult) bigResult.textContent = r.mindType;
+
+  const rankLabel = document.querySelector("#rank-label");
+  if (rankLabel) rankLabel.textContent = "🏆 Rank: " + r.rank;
 
   const bars = document.querySelectorAll(".progress-fill");
   const labels = document.querySelectorAll(".score-label");
@@ -121,47 +103,43 @@ function loadResult() {
     bar.style.width = "0";
     setTimeout(() => {
       bar.style.width = percent + "%";
+      bar.setAttribute("aria-valuenow", percent);
     }, 200);
-
-    if (labels[i]) {
-      labels[i].textContent = values[i] + " / 5";
-    }
+    if (labels[i]) labels[i].textContent = values[i] + " / 5";
   });
 
-  // Analysis list
   const analysisList = document.querySelector(".analysis");
   if (analysisList) {
     analysisList.innerHTML = "";
-    generateAnalysis(r).forEach(item => {
+    generateAnalysis(r).forEach(t => {
       const li = document.createElement("li");
-      li.textContent = item;
+      li.textContent = t;
       analysisList.appendChild(li);
     });
   }
 }
 
-// ========== DASHBOARD ==========
+// ================== DASHBOARD ==================
 function loadDashboard() {
-  const dash = document.querySelector("#dashboard-title");
-  if (!dash) return;
+  if (!document.querySelector("#dashboard-title")) return;
 
   const history = getHistory();
-  if (history.length === 0) return;
+  if (!history.length) return;
 
   const last = history[history.length - 1];
-
   const cards = document.querySelectorAll(".stat-card .big-result");
+
   if (cards.length >= 4) {
     cards[0].textContent = last.mindType;
-    cards[1].textContent = last.total + " / 20";
+    cards[1].textContent = `${last.total} / 20`;
     cards[2].textContent = last.date;
-    cards[3].textContent = calculateRank(last.total);
+    cards[3].textContent = last.rank;
   }
 }
 
-// ========== PROFILE TIMELINE ==========
+// ================== PROFILE ==================
 function loadProfile() {
-  const timeline = document.querySelector(".timeline");
+  const timeline = document.querySelector("#timelineList");
   if (!timeline) return;
 
   const history = getHistory();
@@ -175,7 +153,8 @@ function loadProfile() {
         <strong>${r.date}</strong>
         <p>🧠 ${r.mindType}</p>
         <p>📊 Score: ${r.total} / 20</p>
-        <button type="button" class="btn-secondary" data-index="${index}">📄 View Report</button>
+        <p>🏆 Rank: ${r.rank}</p>
+        <button class="btn-secondary" data-index="${index}">📄 View Report</button>
       </article>
     `;
     timeline.appendChild(li);
@@ -183,21 +162,31 @@ function loadProfile() {
 
   timeline.addEventListener("click", (e) => {
     if (e.target.tagName === "BUTTON") {
-      const i = e.target.getAttribute("data-index");
+      const i = e.target.dataset.index;
       localStorage.setItem("neuroforge_last_index", i);
       window.location.href = "result.html";
     }
   });
+
+  const currentRank = document.querySelector("#currentRank");
+  const progress = document.querySelector("#rankProgress");
+  const nextRankText = document.querySelector("#nextRankText");
+
+  if (currentRank && history.length) {
+    const last = history[history.length - 1];
+    currentRank.textContent = last.rank;
+
+    const percent = Math.min((last.total / 20) * 100, 100);
+    progress.style.width = percent + "%";
+    progress.setAttribute("aria-valuenow", percent);
+    nextRankText.textContent = `Progress to next rank: ${Math.round(percent)}%`;
+  }
 }
 
-// ========== INIT ==========
+// ================== INIT ==================
 document.addEventListener("DOMContentLoaded", () => {
   handleOnboarding();
   loadResult();
   loadDashboard();
   loadProfile();
 });
-const rankLabel = document.querySelector("#rank-label");
-if(rankLabel){
-  rankLabel.textContent = "🏆 Rank: " + calculateRank(r.total);
-}
