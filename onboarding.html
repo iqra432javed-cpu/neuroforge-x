@@ -1,76 +1,57 @@
-<script src="static/js/app.js"></script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>NeuroForge X — Mind Analysis Onboarding</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Start your NeuroForge X mind analysis. Answer a few questions to generate your personalized cognitive blueprint.">
-  <meta name="keywords" content="NeuroForge, onboarding, mindset analysis, cognitive engine, self improvement, productivity, AI">
-  <meta name="author" content="NeuroForge X">
-
-  <!-- Responsive -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Styles -->
-  <link rel="preload" href="static/css/style.css" as="style">
-  <link rel="stylesheet" href="static/css/style.css">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>NeuroForge X — Mind Analysis</title>
+  <meta name="description" content="Start your NeuroForge X mind analysis. Answer a few questions to generate your personalized cognitive blueprint." />
+  <meta name="keywords" content="NeuroForge, onboarding, mindset analysis, cognitive engine, self improvement, productivity, AI" />
+  <meta name="author" content="NeuroForge X" />
+  <meta property="og:title" content="NeuroForge X — Mind Analysis" />
+  <meta property="og:description" content="Calibrate your mind and generate your personalized growth blueprint." />
+  <meta property="og:type" content="website" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preload" href="static/css/style.css" as="style" />
+  <link rel="stylesheet" href="static/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-
-  <!-- Decorative Background Glow -->
   <div class="bg-glow" aria-hidden="true"></div>
 
-  <!-- Header -->
   <header class="header">
-    <div class="logo" aria-label="NeuroForge X logo">🧠 NeuroForge X</div>
+    <div class="logo">🧠 NeuroForge X</div>
     <nav class="nav" aria-label="Main navigation">
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="onboarding.html" aria-current="page">Onboarding</a></li>
         <li><a href="result.html">Results</a></li>
       </ul>
-      <span class="badge" title="Current development stage">MVP Prototype</span>
+      <span class="badge">MVP Prototype</span>
     </nav>
   </header>
 
-  <!-- Main -->
   <main class="hero">
-    <section class="glass-card animate-fadein" role="region" aria-labelledby="onboarding-title">
+    <section class="glass-card animate-fadein" aria-labelledby="onboarding-title">
+      <h1 id="onboarding-title" class="title">Mind <span class="highlight">Calibration</span></h1>
+      <p class="subtitle">Answer these questions honestly. There are no right or wrong answers. This will help generate your personalized cognitive blueprint.</p>
 
-      <h1 id="onboarding-title" class="title">
-        Mind <span class="highlight">Calibration</span>
-      </h1>
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-text" id="progressText" aria-live="polite">Step 1 of 1 — Self Assessment</div>
+        <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-fill" id="progressFill" style="width: 100%;"></div>
+        </div>
+      </div>
 
-      <p class="subtitle">
-        Answer these questions honestly. There are no right or wrong answers —
-        this helps NeuroForge X generate your personalized cognitive blueprint.
-      </p>
-
-      <!-- Required Indicator -->
-      <p class="hint">All questions are required</p>
-
-      <!-- Progress Indicator -->
-      <p class="progress">Step 1 of 3 — Mind Calibration</p>
-
-      <!-- Visual Grouping Title -->
-      <h2 class="section-title">Self-Assessment</h2>
-
-      <!-- Onboarding Form -->
-      <form action="result.html" method="get" class="onboarding-form">
-
+      <!-- Form -->
+      <form id="onboardingForm" class="onboarding-form" novalidate>
         <fieldset>
           <legend class="sr-only">Mindset Questions</legend>
 
           <div class="question">
             <label for="focus">🧠 How strong is your focus?</label>
-            <select id="focus" name="focus" required>
+            <select id="focus" name="focus" required aria-required="true">
               <option value="">Select</option>
               <option value="1">1 — Very weak</option>
               <option value="2">2 — Weak</option>
@@ -82,7 +63,7 @@
 
           <div class="question">
             <label for="discipline">📏 How disciplined are you?</label>
-            <select id="discipline" name="discipline" required>
+            <select id="discipline" name="discipline" required aria-required="true">
               <option value="">Select</option>
               <option value="1">1 — Very low</option>
               <option value="2">2 — Low</option>
@@ -93,8 +74,8 @@
           </div>
 
           <div class="question">
-            <label for="confidence">🔥 How confident do you feel in execution?</label>
-            <select id="confidence" name="confidence" required>
+            <label for="confidence">🔥 How confident are you in execution?</label>
+            <select id="confidence" name="confidence" required aria-required="true">
               <option value="">Select</option>
               <option value="1">1 — Very low</option>
               <option value="2">2 — Low</option>
@@ -106,7 +87,7 @@
 
           <div class="question">
             <label for="consistency">🔁 How consistent are you?</label>
-            <select id="consistency" name="consistency" required>
+            <select id="consistency" name="consistency" required aria-required="true">
               <option value="">Select</option>
               <option value="1">1 — Very inconsistent</option>
               <option value="2">2 — Inconsistent</option>
@@ -117,27 +98,21 @@
           </div>
         </fieldset>
 
-        <!-- CTA Button (default disabled, JS will enable later) -->
-        <button type="submit" class="btn-primary" aria-label="Generate your personalized blueprint" disabled>
-          Generate My Blueprint
-        </button>
+        <button type="submit" id="submitBtn" class="btn-primary" disabled>Generate My Blueprint</button>
       </form>
 
-      <p class="note">
-        🔒 Your data is not stored. This is an experimental prototype.
-      </p>
-
+      <p class="note">🔒 Your data is not stored. This is an experimental prototype.</p>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <p>&copy; 2026 NeuroForge X — Cognitive Engine Prototype</p>
-    <nav aria-label="Footer navigation">
-      <a href="https://github.com/iqra432javed-cpu/neuroforge-x">GitHub</a> |
+    <nav>
+      <a href="https://github.com/iqra432javed-cpu/neuroforge-x" target="_blank" rel="noopener">GitHub</a> |
       <a href="contact.html">Contact</a>
     </nav>
   </footer>
 
+  <script src="static/js/app.js" defer></script>
 </body>
 </html>
