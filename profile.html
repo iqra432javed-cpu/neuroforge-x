@@ -1,55 +1,55 @@
-<script src="static/js/app.js"></script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>NeuroForge X — Mind Evolution</title>
 
   <!-- SEO -->
-  <meta name="description" content="Your NeuroForge X mind evolution timeline. Track your cognitive growth, past analyses, and rank progression.">
-  <meta name="keywords" content="NeuroForge, profile, evolution, timeline, mindset, growth, cognitive history">
-  <meta name="author" content="NeuroForge X">
+  <meta name="description" content="Your NeuroForge X mind evolution timeline. Track your cognitive growth, past analyses, and rank progression." />
+  <meta name="keywords" content="NeuroForge, profile, evolution, timeline, mindset, growth, cognitive history" />
+  <meta name="author" content="NeuroForge X" />
+
+  <!-- Social -->
+  <meta property="og:title" content="NeuroForge X — Mind Evolution" />
+  <meta property="og:description" content="Track your cognitive growth and evolution over time." />
+  <meta property="og:type" content="website" />
 
   <!-- Responsive -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Styles -->
-  <link rel="preload" href="static/css/style.css" as="style">
-  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="preload" href="static/css/style.css" as="style" />
+  <link rel="stylesheet" href="static/css/style.css" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-
-  <!-- Background Glow -->
   <div class="bg-glow" aria-hidden="true"></div>
 
   <!-- Header -->
   <header class="header">
-    <div class="logo" aria-label="NeuroForge X logo">🧠 NeuroForge X</div>
+    <div class="logo">🧠 NeuroForge X</div>
     <nav class="nav" aria-label="Main navigation">
       <ul>
         <li><a href="index.html">Home</a></li>
-        <li><a href="dashboard.html">Dashboard</a></li>
         <li><a href="onboarding.html">New Analysis</a></li>
         <li><a href="profile.html" aria-current="page">Profile</a></li>
       </ul>
-      <span class="badge" title="Current development stage">MVP Prototype</span>
+      <span class="badge">MVP Prototype</span>
     </nav>
   </header>
 
   <!-- Main -->
   <main class="hero">
-    <section class="glass-card animate-fadein" role="region" aria-labelledby="profile-title">
+    <section class="glass-card animate-fadein" aria-labelledby="profile-title">
 
       <!-- Title -->
       <h1 id="profile-title" class="title">
         Your <span class="highlight">Mind Evolution</span>
       </h1>
-
       <p class="subtitle">
         This is your cognitive journey. Every analysis upgrades your rank, clarity, and execution power.
       </p>
@@ -58,10 +58,10 @@
       <section aria-labelledby="rank-title">
         <h2 id="rank-title">🏆 Current Rank</h2>
         <div class="result-block highlight-card">
-          <p class="big-result">Explorer</p>
-          <p class="muted">Next Rank: Builder (35% progress)</p>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width:35%"></div>
+          <p class="big-result" id="currentRank">Explorer</p>
+          <p class="muted" id="nextRankText">Next Rank: Builder (0% progress)</p>
+          <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-describedby="nextRankText">
+            <div class="progress-fill" id="rankProgress" style="width: 0%;"></div>
           </div>
         </div>
       </section>
@@ -69,23 +69,8 @@
       <!-- Evolution Timeline -->
       <section aria-labelledby="timeline-title">
         <h2 id="timeline-title" class="section-title">🧬 Evolution Timeline</h2>
-        <ul class="timeline">
-          <li class="timeline-item">
-            <article>
-              <strong>2026-01-16</strong>
-              <p>🧠 Mind Type: Strategic Explorer</p>
-              <p>📊 Score: 20 / 40</p>
-              <p class="muted">First recorded analysis. Strong planning, weak execution.</p>
-            </article>
-          </li>
-          <li class="timeline-item">
-            <article>
-              <strong>2026-02-02</strong>
-              <p>🧠 Mind Type: Focused Explorer</p>
-              <p>📊 Score: 24 / 40</p>
-              <p class="muted">Improved consistency and focus.</p>
-            </article>
-          </li>
+        <ul class="timeline" id="timelineList">
+          <!-- JS will insert timeline items here -->
           <li class="timeline-item ghost">
             <article>
               <strong>Future</strong>
@@ -98,9 +83,9 @@
       <!-- Achievements -->
       <section aria-labelledby="achievements-title">
         <h2 id="achievements-title" class="section-title">🏅 Achievements</h2>
-        <ul class="badges">
-          <li class="badge-card">🥇 First Analysis Completed</li>
-          <li class="badge-card">🔥 7-Day Plan Started</li>
+        <ul class="badges" id="badgesList">
+          <li class="badge-card ghost">🔒 First Analysis (Locked)</li>
+          <li class="badge-card ghost">🔒 7-Day Plan Started (Locked)</li>
           <li class="badge-card ghost">🔒 Builder Rank (Locked)</li>
           <li class="badge-card ghost">🔒 Architect Rank (Locked)</li>
         </ul>
@@ -109,46 +94,31 @@
       <!-- Growth Direction -->
       <section aria-labelledby="direction-title">
         <h2 id="direction-title" class="section-title">🧭 Growth Direction</h2>
-        <ul class="analysis">
-          <li>✅ Thinking clarity improving</li>
-          <li>⚠️ Execution still main bottleneck</li>
-          <li>⚠️ Discipline not yet stable</li>
-          <li>💡 Next evolution requires strict routine & deep work</li>
+        <ul class="analysis" id="growthList">
+          <li>📊 Run your first analysis to see insights here.</li>
         </ul>
       </section>
 
       <!-- Actions -->
       <div class="actions">
         <a href="onboarding.html" class="btn-primary">🚀 Run New Analysis</a>
-        <a href="dashboard.html" class="btn-secondary">⬅ Back to Dashboard</a>
+        <a href="index.html" class="btn-secondary">⬅ Back to Home</a>
       </div>
 
-      <p class="note">
-        ⚠️ This is a simulated prototype timeline. In future versions, all data will be real and persistent.
-      </p>
-
+      <p class="note">⚠️ This is a prototype. In future versions, all data will be real and persistent.</p>
     </section>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
     <p>&copy; 2026 NeuroForge X — Cognitive Engine Prototype</p>
-    <nav aria-label="Footer navigation">
-      <a href="https://github.com/iqra432javed-cpu/neuroforge-x">GitHub</a>
+    <nav>
+      <a href="https://github.com/iqra432javed-cpu/neuroforge-x" target="_blank" rel="noopener">GitHub</a> |
+      <a href="contact.html">Contact</a>
     </nav>
   </footer>
 
-  <!-- Progress animation -->
-  <script>
-    window.addEventListener('load', () => {
-      const bar = document.querySelector('.progress-fill');
-      if(bar){
-        const width = bar.style.width;
-        bar.style.width = '0';
-        setTimeout(() => { bar.style.width = width; }, 200);
-      }
-    });
-  </script>
-
+  <!-- Scripts -->
+  <script src="static/js/app.js" defer></script>
 </body>
 </html>
