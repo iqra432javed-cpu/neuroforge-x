@@ -197,3 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDashboard();
   loadProfile();
 });
+const rankLabel = document.querySelector("#rank-label");
+if(rankLabel){
+  rankLabel.textContent = "🏆 Rank: " + calculateRank(r.total);
+}
