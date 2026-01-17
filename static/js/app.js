@@ -20,15 +20,36 @@ const calculateRank = (total) => {
   return "Dreamer";
 };
 
-const generateAnalysis = (result) => {
+const getNextRank = (rank) => {
+  if (rank === "Dreamer") return "Explorer";
+  if (rank === "Explorer") return "Builder";
+  if (rank === "Builder") return "Architect";
+  return "Architect";
+};
+
+const generateAnalysis = (r) => {
   const insights = [];
-  if (result.execution <= 2) insights.push("⚠️ Execution is your biggest weakness");
-  if (result.consistency <= 2) insights.push("⚠️ Consistency is unstable");
-  if (result.discipline <= 2) insights.push("⚠️ Discipline needs improvement");
-  if (result.focus >= 4) insights.push("✅ Strong focus ability");
-  if (result.discipline >= 4) insights.push("✅ Strong discipline");
+  if (r.execution <= 2) insights.push("⚠️ Execution is your biggest weakness");
+  if (r.consistency <= 2) insights.push("⚠️ Consistency is unstable");
+  if (r.discipline <= 2) insights.push("⚠️ Discipline needs improvement");
+  if (r.focus >= 4) insights.push("✅ Strong focus ability");
+  if (r.discipline >= 4) insights.push("✅ Strong discipline");
   if (!insights.length) insights.push("💡 Balanced profile. Time to optimize.");
   return insights;
+};
+
+const generatePlan = (r) => {
+  const plan = [];
+  plan.push("Day 1: Clarify goals and remove distractions");
+  plan.push("Day 2: Build a 60–90 min deep work block");
+  if (r.execution <= 2) plan.push("Day 3: Finish one small task completely");
+  else plan.push("Day 3: Increase execution intensity");
+  if (r.discipline <= 2) plan.push("Day 4: Fix routine and sleep schedule");
+  else plan.push("Day 4: Lock in your routine");
+  plan.push("Day 5: Do work even when motivation is low");
+  plan.push("Day 6: Review and optimize your system");
+  plan.push("Day 7: Reflect and upgrade your plan");
+  return plan.slice(0, 7);
 };
 
 // ================== ONBOARDING ==================
@@ -63,16 +84,11 @@ function handleOnboarding() {
     };
 
     const history = getHistory();
-    if (history.length && history[history.length - 1].date === result.date) {
-      history[history.length - 1] = result;
-    } else {
-      history.push(result);
-    }
+    history.push(result);
 
     saveHistory(history);
     localStorage.setItem("neuroforge_last_index", history.length - 1);
 
-    // Optional: show a quick success message before redirect
     button.textContent = "✅ Analysis Saved!";
     setTimeout(() => window.location.href = "result.html", 500);
   });
@@ -88,12 +104,15 @@ function loadResult() {
   const index = +localStorage.getItem("neuroforge_last_index") || history.length - 1;
   const r = history[index];
 
+  // Mind type
   const bigResult = document.querySelector(".big-result");
   if (bigResult) bigResult.textContent = r.mindType;
 
+  // Rank
   const rankLabel = document.querySelector("#rank-label");
   if (rankLabel) rankLabel.textContent = "🏆 Rank: " + r.rank;
 
+  // Bars
   const bars = document.querySelectorAll(".progress-fill");
   const labels = document.querySelectorAll(".score-label");
   const values = [r.focus, r.discipline, r.execution, r.consistency];
@@ -108,6 +127,7 @@ function loadResult() {
     if (labels[i]) labels[i].textContent = values[i] + " / 5";
   });
 
+  // Analysis
   const analysisList = document.querySelector(".analysis");
   if (analysisList) {
     analysisList.innerHTML = "";
@@ -115,6 +135,26 @@ function loadResult() {
       const li = document.createElement("li");
       li.textContent = t;
       analysisList.appendChild(li);
+    });
+  }
+
+  // Rank Progress
+  const progressBar = document.querySelector("#resultProgress");
+  const progressText = document.querySelector("#resultProgressText");
+  if (progressBar && progressText) {
+    const percent = Math.min((r.total / 20) * 100, 100);
+    progressBar.style.width = percent + "%";
+    progressText.textContent = `${Math.round(percent)}% to ${getNextRank(r.rank)}`;
+  }
+
+  // Plan
+  const planList = document.querySelector("#resultPlanList");
+  if (planList) {
+    planList.innerHTML = "";
+    generatePlan(r).forEach(step => {
+      const li = document.createElement("li");
+      li.textContent = step;
+      planList.appendChild(li);
     });
   }
 }
@@ -127,13 +167,24 @@ function loadDashboard() {
   if (!history.length) return;
 
   const last = history[history.length - 1];
-  const cards = document.querySelectorAll(".stat-card .big-result");
 
+  const cards = document.querySelectorAll(".stat-card .big-result");
   if (cards.length >= 4) {
     cards[0].textContent = last.mindType;
     cards[1].textContent = `${last.total} / 20`;
     cards[2].textContent = last.date;
     cards[3].textContent = last.rank;
+  }
+
+  const welcome = document.querySelector("#welcomeRank");
+  if (welcome) welcome.textContent = last.rank;
+
+  const progress = document.querySelector("#rankProgress");
+  const progressText = document.querySelector("#rankProgressText");
+  if (progress && progressText) {
+    const percent = Math.min((last.total / 20) * 100, 100);
+    progress.style.width = percent + "%";
+    progressText.textContent = `${Math.round(percent)}% to ${getNextRank(last.rank)}`;
   }
 }
 
@@ -167,20 +218,6 @@ function loadProfile() {
       window.location.href = "result.html";
     }
   });
-
-  const currentRank = document.querySelector("#currentRank");
-  const progress = document.querySelector("#rankProgress");
-  const nextRankText = document.querySelector("#nextRankText");
-
-  if (currentRank && history.length) {
-    const last = history[history.length - 1];
-    currentRank.textContent = last.rank;
-
-    const percent = Math.min((last.total / 20) * 100, 100);
-    progress.style.width = percent + "%";
-    progress.setAttribute("aria-valuenow", percent);
-    nextRankText.textContent = `Progress to next rank: ${Math.round(percent)}%`;
-  }
 }
 
 // ================== INIT ==================
