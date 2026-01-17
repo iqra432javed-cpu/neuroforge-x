@@ -1,33 +1,21 @@
-<script src="static/js/app.js"></script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>NeuroForge X — Dashboard</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Your NeuroForge X personal dashboard. Track your mindset, progress, and growth journey.">
-  <meta name="keywords" content="NeuroForge, dashboard, mindset, cognitive engine, productivity, self improvement">
-  <meta name="author" content="NeuroForge X">
-
-  <!-- Responsive -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Styles -->
-  <link rel="preload" href="static/css/style.css" as="style">
-  <link rel="stylesheet" href="static/css/style.css">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta name="description" content="Your NeuroForge X personal dashboard. Track your mindset, progress, and growth journey." />
+  <meta name="keywords" content="NeuroForge, dashboard, mindset, cognitive engine, productivity, self improvement" />
+  <meta name="author" content="NeuroForge X" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preload" href="static/css/style.css" as="style" />
+  <link rel="stylesheet" href="static/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 </head>
 <body>
-
-  <!-- Background Glow -->
   <div class="bg-glow" aria-hidden="true"></div>
 
-  <!-- Header -->
   <header class="header">
     <div class="logo" aria-label="NeuroForge X logo">🧠 NeuroForge X</div>
     <nav class="nav" aria-label="Main navigation">
@@ -41,92 +29,51 @@
     </nav>
   </header>
 
-  <!-- Main -->
   <main class="hero">
     <section class="glass-card animate-fadein" role="region" aria-labelledby="dashboard-title">
-
-      <!-- Welcome -->
       <h1 id="dashboard-title" class="title">
-        Welcome back, <span class="highlight">Explorer</span>
+        Welcome back, <span class="highlight" id="welcomeRank">Explorer</span>
       </h1>
-      <p class="subtitle">
-        This is your NeuroForge X control center. Track your mind, progress, and evolution.
-      </p>
+      <p class="subtitle">This is your NeuroForge X control center. Track your mind, progress, and evolution.</p>
 
-      <!-- Stats Grid -->
       <section class="stats-grid" aria-labelledby="stats-title">
         <h2 id="stats-title" class="sr-only">Dashboard Stats</h2>
-
-        <div class="stat-card">
-          <h3>🧠 Mind Type</h3>
-          <p class="big-result">Strategic Explorer</p>
-          <p class="muted">Current cognitive profile</p>
-        </div>
-
-        <div class="stat-card">
-          <h3>📊 Last Score</h3>
-          <p class="big-result">20 / 40</p>
-          <p class="muted">From last analysis</p>
-        </div>
-
-        <div class="stat-card">
-          <h3>🗓️ Last Analysis</h3>
-          <p class="big-result">2026-01-16</p>
-          <p class="muted">Latest report date</p>
-        </div>
-
-        <div class="stat-card">
-          <h3>🏆 Rank</h3>
-          <p class="big-result">Explorer</p>
-          <p class="muted">Next: Builder</p>
-        </div>
+        <div class="stat-card"><h3>🧠 Mind Type</h3><p class="big-result">—</p><p class="muted">Current cognitive profile</p></div>
+        <div class="stat-card"><h3>📊 Last Score</h3><p class="big-result">—</p><p class="muted">From last analysis</p></div>
+        <div class="stat-card"><h3>🗓️ Last Analysis</h3><p class="big-result">—</p><p class="muted">Latest report date</p></div>
+        <div class="stat-card"><h3>🏆 Rank</h3><p class="big-result">—</p><p class="muted">Your current level</p></div>
       </section>
 
-      <!-- Quick Actions -->
+      <section class="progress-block" aria-labelledby="progress-title">
+        <h2 id="progress-title" class="section-title">📈 Growth Progress</h2>
+        <p><strong>Level Progress</strong></p>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-fill" id="rankProgress" style="width:0%"></div>
+        </div>
+        <p class="muted" id="rankProgressText">0% to next rank</p>
+      </section>
+
       <h2 class="section-title">⚡ Quick Actions</h2>
       <ul class="actions-grid" aria-label="Quick actions">
         <li><a href="result.html" class="action-card">📄 View Last Report</a></li>
         <li><a href="onboarding.html" class="action-card">🔁 Run New Analysis</a></li>
-        <li><a href="#" class="action-card">⬇️ Download PDF <span class="small muted">(coming soon)</span></a></li>
         <li><a href="profile.html" class="action-card">🧬 View Mind History</a></li>
+        <li><a href="#" class="action-card" aria-disabled="true">⬇️ Download PDF <span class="small muted">(coming soon)</span></a></li>
       </ul>
 
-      <!-- Progress Section -->
-      <section class="progress-block" aria-labelledby="progress-title">
-        <h2 id="progress-title" class="section-title">📈 Growth Progress</h2>
-        <p><strong>Level Progress:</strong> Explorer → Builder</p>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:35%"></div>
-        </div>
-        <p class="muted">35% to next rank</p>
-      </section>
-
-      <!-- Roadmap Hint -->
-      <div class="note">
-        🚀 Soon you will see your full mind evolution timeline, achievements, and progress charts here.
-      </div>
-
+      <div class="note">🚀 Soon you will see your full mind evolution timeline, achievements, and progress charts here.</div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <p>&copy; 2026 NeuroForge X — Cognitive Engine Prototype</p>
     <nav aria-label="Footer navigation">
-      <a href="about.html">About</a> |
-      <a href="https://github.com/iqra432javed-cpu/neuroforge-x">GitHub</a>
+      <a href="https://github.com/iqra432javed-cpu/neuroforge-x" target="_blank" rel="noopener">GitHub</a> |
+      <a href="contact.html">Contact</a> |
+      <a href="privacy.html">Privacy Policy</a>
     </nav>
   </footer>
 
-  <!-- JS to animate progress bar -->
-  <script>
-    window.addEventListener('load', () => {
-      const bar = document.querySelector('.progress-fill');
-      const width = bar.style.width;
-      bar.style.width = '0';
-      setTimeout(() => { bar.style.width = width; }, 200);
-    });
-  </script>
-
+  <script src="static/js/app.js" defer></script>
 </body>
 </html>
