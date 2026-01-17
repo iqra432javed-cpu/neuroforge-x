@@ -1,11 +1,58 @@
-// static/js/app.js
+Here’s a **finalized refined version of `app.js`** that integrates all the fixes and enhancements we discussed. It’s clean, modular, and future‑proof:
 
+```js
 // ================== STORAGE ==================
 const getHistory = () => JSON.parse(localStorage.getItem("neuroforge_history") || "[]");
 const saveHistory = (history) => localStorage.setItem("neuroforge_history", JSON.stringify(history));
+
+const getAchievements = () => JSON.parse(localStorage.getItem("neuroforge_achievements") || "[]");
+const saveAchievements = (a) => localStorage.setItem("neuroforge_achievements", JSON.stringify(a));
+
+const getXP = () => +localStorage.getItem("neuroforge_xp") || 0;
+const setXP = (v) => localStorage.setItem("neuroforge_xp", v);
+
+const getStreak = () => +localStorage.getItem("neuroforge_streak") || 0;
+const setStreak = (v) => localStorage.setItem("neuroforge_streak", v);
+
+const getLastActive = () => localStorage.getItem("neuroforge_last_active");
+const setLastActive = (d) => localStorage.setItem("neuroforge_last_active", d);
+
 const getToday = () => new Date().toISOString().split("T")[0];
 
-// ================== ENGINE ==================
+// ================== LEVEL SYSTEM ==================
+const xpForLevel = (level) => Math.floor(100 * Math.pow(level, 1.4) + level * 50);
+
+function getLevel() {
+  let xp = getXP();
+  let level = 1;
+  while (xp >= xpForLevel(level)) {
+    xp -= xpForLevel(level);
+    level++;
+  }
+  return level;
+}
+
+function getXPIntoLevel() {
+  let xp = getXP();
+  let level = 1;
+  while (xp >= xpForLevel(level)) {
+    xp -= xpForLevel(level);
+    level++;
+  }
+  return { level, current: xp, required: xpForLevel(level) };
+}
+
+// ================== LORE TITLES ==================
+function getLoreTitle(level) {
+  if (level >= 100) return "🌌 Transcendent Entity";
+  if (level >= 50) return "👑 Neural Overlord";
+  if (level >= 20) return "🏛️ Architect of Will";
+  if (level >= 10) return "🏹 Thought Warrior";
+  if (level >= 5) return "⚔️ Mind Trainee";
+  return "🧠 Wandering Mind";
+}
+
+// ================== RANK SYSTEM ==================
 const calculateMindType = (total) => {
   if (total >= 17) return "Focused Architect";
   if (total >= 13) return "Strategic Builder";
@@ -27,30 +74,114 @@ const getNextRank = (rank) => {
   return "Architect";
 };
 
-const generateAnalysis = (r) => {
-  const insights = [];
-  if (r.execution <= 2) insights.push("⚠️ Execution is your biggest weakness");
-  if (r.consistency <= 2) insights.push("⚠️ Consistency is unstable");
-  if (r.discipline <= 2) insights.push("⚠️ Discipline needs improvement");
-  if (r.focus >= 4) insights.push("✅ Strong focus ability");
-  if (r.discipline >= 4) insights.push("✅ Strong discipline");
-  if (!insights.length) insights.push("💡 Balanced profile. Time to optimize.");
-  return insights;
-};
+// ================== ACHIEVEMENTS ==================
+const ALL_ACHIEVEMENTS = [
+  { id: "first_analysis", title: "🧠 First Awakening", check: (s) => s.historyCount >= 1 },
+  { id: "three_day_streak", title: "🔥 3 Day Streak", check: (s) => s.streak >= 3 },
+  { id: "seven_day_streak", title: "🔥 7 Day Streak", check: (s) => s.streak >= 7 },
+  { id: "thirty_day_streak", title: "👑 Consistency Master", check: (s) => s.streak >= 30 },
+  { id: "five_sessions", title: "📊 5 Analyses", check: (s) => s.historyCount >= 5 },
+  { id: "level_5", title: "🧬 Level 5", check: (s) => s.level >= 5 },
+  { id: "level_10", title: "🧬 Level 10", check: (s) => s.level >= 10 },
+  { id: "builder_rank", title: "🏗️ Builder Rank", check: (s) => ["Builder","Architect"].includes(s.rank) },
+  { id: "architect_rank", title: "🏛️ Architect Rank", check: (s) => s.rank === "Architect" },
+  { id: "night_owl", title: "🌙 Night Owl" }, // handled separately
+  { id: "early_bird", title: "🌞 Early Bird" } // handled separately
+];
 
-const generatePlan = (r) => {
-  const plan = [];
-  plan.push("Day 1: Clarify goals and remove distractions");
-  plan.push("Day 2: Build a 60–90 min deep work block");
-  if (r.execution <= 2) plan.push("Day 3: Finish one small task completely");
-  else plan.push("Day 3: Increase execution intensity");
-  if (r.discipline <= 2) plan.push("Day 4: Fix routine and sleep schedule");
-  else plan.push("Day 4: Lock in your routine");
-  plan.push("Day 5: Do work even when motivation is low");
-  plan.push("Day 6: Review and optimize your system");
-  plan.push("Day 7: Reflect and upgrade your plan");
-  return plan.slice(0, 7);
-};
+function unlockAchievement(id) {
+  const unlocked = getAchievements();
+  if (unlocked.includes(id)) return false;
+
+  unlocked.push(id);
+  saveAchievements(unlocked);
+
+  const a = ALL_ACHIEVEMENTS.find(x => x.id === id);
+  showToast(`🏅 Achievement Unlocked: ${a ? a.title : id}`);
+  return true;
+}
+
+function checkAchievements(state) {
+  ALL_ACHIEVEMENTS.forEach(a => {
+    if (a.check && a.check(state)) unlockAchievement(a.id);
+  });
+}
+
+// ================== TIME ACHIEVEMENTS ==================
+function checkTimeAchievements() {
+  const hour = new Date().getHours();
+  if (hour >= 0 && hour <= 4) unlockAchievement("night_owl");
+  if (hour >= 5 && hour <= 8) unlockAchievement("early_bird");
+}
+
+// ================== XP ==================
+function grantXP(amount) {
+  setXP(getXP() + amount);
+  showToast(`✨ +${amount} XP gained`);
+}
+
+function applyDailyXPDecay() {
+  const last = getLastActive();
+  const today = getToday();
+  if (!last) return;
+
+  const diffDays = Math.floor((new Date(today) - new Date(last)) / (1000 * 60 * 60 * 24));
+  if (diffDays >= 1) {
+    const xp = getXP();
+    const loss = diffDays * 5; // 5 XP per inactive day
+    setXP(Math.max(0, xp - loss));
+    showToast(`⚠️ Inactivity penalty: -${loss} XP`);
+  }
+}
+
+// ================== STREAK ==================
+function updateStreak() {
+  const today = getToday();
+  const last = getLastActive();
+
+  if (!last) {
+    setStreak(1);
+  } else {
+    const diffDays = Math.floor((new Date(today) - new Date(last)) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      setStreak(getStreak() + 1);
+      showToast(`🔥 Streak: ${getStreak()} days`);
+    } else if (diffDays > 1) {
+      setStreak(1);
+      applyDailyXPDecay();
+    }
+  }
+  setLastActive(today);
+}
+
+// ================== TOAST QUEUE ==================
+let toastQueue = [];
+let toastActive = false;
+
+function showToast(message) {
+  toastQueue.push(message);
+  if (!toastActive) processToast();
+}
+
+function processToast() {
+  if (!toastQueue.length) { toastActive = false; return; }
+  toastActive = true;
+  const message = toastQueue.shift();
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add("visible"), 50);
+  setTimeout(() => {
+    toast.classList.remove("visible");
+    setTimeout(() => {
+      toast.remove();
+      processToast();
+    }, 500);
+  }, 2500);
+}
 
 // ================== ONBOARDING ==================
 function handleOnboarding() {
@@ -63,7 +194,6 @@ function handleOnboarding() {
   const check = () => {
     button.disabled = [...selects].some(s => !s.value);
   };
-
   selects.forEach(s => s.addEventListener("change", check));
 
   form.addEventListener("submit", (e) => {
@@ -71,8 +201,9 @@ function handleOnboarding() {
 
     const focus = +form.focus.value;
     const discipline = +form.discipline.value;
-    const execution = +form.confidence.value;
+    const execution = +form.execution.value;
     const consistency = +form.consistency.value;
+
     const total = focus + discipline + execution + consistency;
 
     const result = {
@@ -85,16 +216,29 @@ function handleOnboarding() {
 
     const history = getHistory();
     history.push(result);
-
     saveHistory(history);
     localStorage.setItem("neuroforge_last_index", history.length - 1);
 
-    button.textContent = "✅ Analysis Saved!";
+    updateStreak();
+    grantXP(50 + total * 5 + getStreak() * 10);
+
+    const state = {
+      historyCount: history.length,
+      streak: getStreak(),
+      xp: getXP(),
+      level: getLevel(),
+      rank: result.rank
+    };
+
+    checkAchievements(state);
+    checkTimeAchievements();
+
+    button.textContent = "✅ Neural Data Saved";
     setTimeout(() => window.location.href = "result.html", 500);
   });
 }
 
-// ================== RESULT PAGE ==================
+// ================== RESULT ==================
 function loadResult() {
   if (!document.querySelector("#result-title")) return;
 
@@ -104,58 +248,31 @@ function loadResult() {
   const index = +localStorage.getItem("neuroforge_last_index") || history.length - 1;
   const r = history[index];
 
-  // Mind type
-  const bigResult = document.querySelector(".big-result");
-  if (bigResult) bigResult.textContent = r.mindType;
+  const big = document.querySelector(".big-result");
+  if (big) big.textContent = r.mindType;
 
-  // Rank
   const rankLabel = document.querySelector("#rank-label");
   if (rankLabel) rankLabel.textContent = "🏆 Rank: " + r.rank;
 
-  // Bars
-  const bars = document.querySelectorAll(".progress-fill");
-  const labels = document.querySelectorAll(".score-label");
-  const values = [r.focus, r.discipline, r.execution, r.consistency];
-
-  bars.forEach((bar, i) => {
-    const percent = (values[i] / 5) * 100;
-    bar.style.width = "0";
-    setTimeout(() => {
-      bar.style.width = percent + "%";
-      bar.setAttribute("aria-valuenow", percent);
-    }, 200);
-    if (labels[i]) labels[i].textContent = values[i] + " / 5";
-  });
-
-  // Analysis
-  const analysisList = document.querySelector(".analysis");
-  if (analysisList) {
-    analysisList.innerHTML = "";
-    generateAnalysis(r).forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = t;
-      analysisList.appendChild(li);
-    });
-  }
-
-  // Rank Progress
-  const progressBar = document.querySelector("#resultProgress");
-  const progressText = document.querySelector("#resultProgressText");
-  if (progressBar && progressText) {
+  // ===== Rank Progress =====
+  const rankBar = document.querySelector("#resultProgress");
+  const rankText = document.querySelector("#resultProgressText");
+  if (rankBar && rankText) {
     const percent = Math.min((r.total / 20) * 100, 100);
-    progressBar.style.width = percent + "%";
-    progressText.textContent = `${Math.round(percent)}% to ${getNextRank(r.rank)}`;
+    rankBar.style.width = percent + "%";
+    rankBar.setAttribute("aria-valuenow", percent);
+    rankText.textContent = `${Math.round(percent)}% to ${getNextRank(r.rank)}`;
   }
 
-  // Plan
-  const planList = document.querySelector("#resultPlanList");
-  if (planList) {
-    planList.innerHTML = "";
-    generatePlan(r).forEach(step => {
-      const li = document.createElement("li");
-      li.textContent = step;
-      planList.appendChild(li);
-    });
+  // ===== XP Progress =====
+  const xpBar = document.querySelector("#xpProgress");
+  const xpText = document.querySelector("#xpProgressText");
+  if (xpBar && xpText) {
+    const xpInfo = getXPIntoLevel();
+    const percent = Math.floor((xpInfo.current / xpInfo.required) * 100);
+    xpBar.style.width = percent + "%";
+    xpBar.setAttribute("aria-valuenow", percent);
+    xpText.textContent = `🧬 Level ${xpInfo.level} — ${percent}% to next level`;
   }
 }
 
@@ -176,16 +293,15 @@ function loadDashboard() {
     cards[3].textContent = last.rank;
   }
 
-  const welcome = document.querySelector("#welcomeRank");
-  if (welcome) welcome.textContent = last.rank;
+  const xpEl = document.querySelector("#xpValue");
+  const levelEl = document.querySelector("#levelValue");
+  const streakEl = document.querySelector("#streakValue");
+  const loreEl = document.querySelector("#loreTitle");
 
-  const progress = document.querySelector("#rankProgress");
-  const progressText = document.querySelector("#rankProgressText");
-  if (progress && progressText) {
-    const percent = Math.min((last.total / 20) * 100, 100);
-    progress.style.width = percent + "%";
-    progressText.textContent = `${Math.round(percent)}% to ${getNextRank(last.rank)}`;
-  }
+  if (xpEl) xpEl.textContent = getXP();
+  if (levelEl) levelEl.textContent = getLevel();
+  if (streakEl) streakEl.textContent = getStreak();
+  if (loreEl) loreEl.textContent = getLoreTitle(getLevel());
 }
 
 // ================== PROFILE ==================
@@ -196,7 +312,7 @@ function loadProfile() {
   const history = getHistory();
   timeline.innerHTML = "";
 
-  history.forEach((r, index) => {
+  history.forEach((r, i) => {
     const li = document.createElement("li");
     li.className = "timeline-item";
     li.innerHTML = `
@@ -205,19 +321,31 @@ function loadProfile() {
         <p>🧠 ${r.mindType}</p>
         <p>📊 Score: ${r.total} / 20</p>
         <p>🏆 Rank: ${r.rank}</p>
-        <button class="btn-secondary" data-index="${index}">📄 View Report</button>
+        <button class="btn-secondary">📄 View Report</button>
       </article>
     `;
+
+    li.querySelector("button").addEventListener("click", () => {
+      localStorage.setItem("neuroforge_last_index", i);
+      window.location.href = "result.html";
+    });
+
     timeline.appendChild(li);
   });
 
-  timeline.addEventListener("click", (e) => {
-    if (e.target.tagName === "BUTTON") {
-      const i = e.target.dataset.index;
-      localStorage.setItem("neuroforge_last_index", i);
-      window.location.href = "result.html";
-    }
-  });
+  // ===== Achievements List (if exists) =====
+  const achList = document.querySelector("#achievementList");
+  if (achList) {
+    const unlocked = getAchievements();
+    achList.innerHTML = "";
+
+    ALL_ACHIEVEMENTS.forEach(a => {
+      const li = document.createElement("li");
+      const isUnlocked = unlocked.includes(a.id);
+      li.textContent = `${isUnlocked ? "✅" : "🔒"} ${a.title}`;
+      achList.appendChild(li);
+    });
+  }
 }
 
 // ================== INIT ==================
